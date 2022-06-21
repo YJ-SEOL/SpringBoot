@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.dongsungsi.dao.CustomerDao">
+
+    <select id="findAll"
+            parameterType="com.example.dongsungsi.paging.Criteria"
+            resultType="com.example.dongsungsi.model.Customer">
+        SELECT *
+        FROM (SELECT ROWNUM R,
+                     TT.*
+              FROM TB_CUSTOMER_SYJ TT
+              WHERE TT.DELETE_YN = 'N'
+                AND ROWNUM &lt;= (#{page} + 1) * #{size})
+        WHERE R > #{page} * #{size}
+    </select>
+
+    <select id="findByEmailContaining" parameterType="com.example.dongsungsi.paging.Criteria"
+            resultType="com.example.dongsungsi.model.Customer">
+        SELECT *
+        FROM (SELECT ROWNUM R,
+                     TT.*
+              FROM TB_CUSTOMER_SYJ TT
+              WHERE TT.DELETE_YN = 'N'
+                AND EMAIL LIKE '%' || #{email} || '%'
+                AND ROWNUM &lt;= (#{page} + 1) * #{size})
+        WHERE R > #{page} * #{size}
+    </select>
+
+
+    <select id="selectTotalCount" parameterType="String"
+            resultType="int">
+        SELECT
+            COUNT(*)
+        FROM TB_CUSTOMER_SYJ
+        WHERE DELETE_YN = 'N'
+          AND EMAIL LIKE '%' || #{email} || '%'
+    </select>
+
+
+
+    <select id="findById" parameterType="long"
+            resultType="com.example.dongsungsi.model.Customer">
+        SELECT
+            ID
+             ,FIRST_NAME
+             ,LAST_NAME
+             ,EMAIL
+             ,PHONE
+             ,DELETE_YN
+             ,INSERT_TIME
+             ,UPDATE_TIME
+             ,DELETE_TIME
+        FROM TB_CUSTOMER_SYJ
+        WHERE DELETE_YN = 'N'
+        AND   ID = #{id}
+    </select>
+
+    <insert id="insertCustomer"
+            parameterType="com.example.dongsungsi.model.Customer">
+        INSERT INTO TB_CUSTOMER_SYJ(
+            ID
+           ,FIRST_NAME
+           ,LAST_NAME
+           ,EMAIL
+           ,PHONE
+           ,INSERT_TIME
+        ) VALUES (
+         SQ_CUSTOMER_SYJ.NEXTVAL
+         ,#{firstName}
+         ,#{lastName}
+         ,#{email}
+         ,#{phone}
+         ,TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+        )
+
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT SQ_CUSTOMER_SYJ.CURRVAL FROM DUAL
+        </selectKey>
+
+    </insert>
+
+    <update id="updateCustomer"
+            parameterType="com.example.dongsungsi.model.Customer">
+        UPDATE TB_CUSTOMER_SYJ
+        SET
+            FIRST_NAME = #{firstName}
+            ,LAST_NAME  = #{lastName}
+            ,EMAIL      = #{email}
+            ,PHONE      = #{phone}
+            ,UPDATE_TIME = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+        WHERE
+            ID = #{id}
+    </update>
+
+    <update id="deleteCustomer" parameterType="long">
+        UPDATE TB_CUSTOMER_SYJ
+        SET
+            DELETE_YN = 'Y'
+           ,DELETE_TIME = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+        WHERE
+            ID = #{id}
+    </update>
+
+    <update id="deleteAll">
+        UPDATE TB_CUSTOMER_SYJ
+        SET
+            DELETE_YN = 'Y'
+           ,DELETE_TIME = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+    </update>
+
+</mapper>
+
+
+
+
+
+
+
+

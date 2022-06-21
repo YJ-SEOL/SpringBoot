@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.dongsungsi.dao.FreeBoardDao">
+
+    <select id="findAll"
+            parameterType="com.example.dongsungsi.paging.Criteria"
+            resultType="com.example.dongsungsi.model.FreeBoard">
+        SELECT *
+        FROM (SELECT ROWNUM R,
+                     TT.*
+              FROM TB_BOARD_SYJ TT
+              WHERE TT.DELETE_YN = 'N'
+                AND ROWNUM &lt;= (#{page} + 1) * #{size})
+        WHERE R > #{page} * #{size}
+    </select>
+
+    <select id="findByWriterContaining" parameterType="com.example.dongsungsi.paging.Criteria"
+            resultType="com.example.dongsungsi.model.FreeBoard">
+        SELECT *
+        FROM (SELECT ROWNUM R,
+                     TT.*
+              FROM TB_BOARD_SYJ TT
+              WHERE TT.DELETE_YN = 'N'
+                AND WRITER LIKE '%' || #{writer} || '%'
+                AND ROWNUM &lt;= (#{page} + 1) * #{size})
+        WHERE R > #{page} * #{size}
+    </select>
+
+
+    <select id="selectTotalCount" parameterType="String"
+            resultType="int">
+        SELECT
+            COUNT(*)
+        FROM TB_BOARD_SYJ
+        WHERE DELETE_YN = 'N'
+          AND WRITER LIKE '%' || #{writer} || '%'
+    </select>
+
+    <select id="findById" parameterType="long"
+            resultType="com.example.dongsungsi.model.FreeBoard">
+        SELECT
+            ID
+             ,TITLE
+             ,CONTENT
+             ,WRITER
+             ,DELETE_YN
+             ,INSERT_TIME
+             ,UPDATE_TIME
+             ,DELETE_TIME
+        FROM TB_BOARD_SYJ
+        WHERE DELETE_YN = 'N'
+        AND   ID = #{id}
+    </select>
+
+    <insert id="insertFreeBoard"
+            parameterType="com.example.dongsungsi.model.FreeBoard">
+        INSERT INTO TB_BOARD_SYJ(
+            ID
+           ,TITLE
+           ,CONTENT
+           ,WRITER
+           ,INSERT_TIME
+        ) VALUES (
+        SQ_TB_BOARD_SYJ.NEXTVAL
+         ,#{title}
+         ,#{content}
+         ,#{writer}
+         ,TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+        )
+
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT SQ_TB_BOARD_SYJ.CURRVAL FROM DUAL
+        </selectKey>
+
+    </insert>
+
+    <update id="updateFreeBoard"
+            parameterType="com.example.dongsungsi.model.FreeBoard">
+        UPDATE TB_BOARD_SYJ
+        SET
+            TITLE = #{title}
+            ,CONTENT  = #{content}
+            ,WRITER      = #{writer}
+            ,UPDATE_TIME = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+        WHERE
+            ID = #{id}
+    </update>
+
+    <update id="deleteFreeBoard" parameterType="long">
+        UPDATE TB_BOARD_SYJ
+        SET
+            DELETE_YN = 'Y'
+           ,DELETE_TIME = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+        WHERE
+            ID = #{id}
+    </update>
+
+    <update id="deleteAll">
+        UPDATE TB_BOARD_SYJ
+        SET
+            DELETE_YN = 'Y'
+           ,DELETE_TIME = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+    </update>
+
+</mapper>
+
+
+
+
+
+
+
+

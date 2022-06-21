@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org/DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.example.dongsungsi.dao.TutorialDao">
+
+    <select id="findByPublished" parameterType="String"
+            resultType="com.example.dongsungsi.model.Tutorial">
+        SELECT ID
+             , TITLE
+             , DESCRIPTION
+             , PUBLISHED
+             , DELETE_YN
+             , INSERT_TIME
+             , UPDATE_TIME
+             , DELETE_TIME
+        FROM TB_TUTORIAL_SYJ
+        WHERE DELETE_YN = 'N'
+          AND PUBLISHED = #{published}
+    </select>
+
+    <!--    Todo: 아래 수정 -> findByTitleContaining, findAll, selectTotalCount-->
+    <select id="findByTitleContaining" parameterType="com.example.dongsungsi.paging.Criteria"
+            resultType="com.example.dongsungsi.model.Tutorial">
+        SELECT *
+        FROM (SELECT ROWNUM R,
+                     TT.*
+              FROM TB_TUTORIAL_SYJ TT
+              WHERE TT.DELETE_YN = 'N'
+                AND TITLE LIKE '%' || #{title} || '%'
+                AND ROWNUM &lt;= (#{page} + 1) * #{size})
+        WHERE R > #{page} * #{size}
+    </select>
+
+    <select id="findAll"
+            parameterType="com.example.dongsungsi.paging.Criteria"
+            resultType="com.example.dongsungsi.model.Tutorial">
+        SELECT *
+        FROM (SELECT ROWNUM R,
+                     TT.*
+              FROM TB_TUTORIAL_SYJ TT
+              WHERE TT.DELETE_YN = 'N'
+                AND ROWNUM &lt;= (#{page} + 1) * #{size})
+        WHERE R > #{page} * #{size}
+    </select>
+
+    <select id="selectTotalCount" parameterType="String"
+            resultType="int">
+        SELECT
+            COUNT(*)
+        FROM TB_TUTORIAL_SYJ
+        WHERE DELETE_YN = 'N'
+            AND TITLE LIKE '%' || #{title} || '%'
+    </select>
+
+    <select id="findById" parameterType="Long"
+            resultType="com.example.dongsungsi.model.Tutorial">
+        SELECT ID
+             , TITLE
+             , DESCRIPTION
+             , PUBLISHED
+             , DELETE_YN
+             , INSERT_TIME
+             , UPDATE_TIME
+             , DELETE_TIME
+        FROM TB_TUTORIAL_SYJ
+        WHERE DELETE_YN = 'N'
+          AND ID = #{id}
+    </select>
+
+    <insert id="insertTutorial"
+            parameterType="com.example.dongsungsi.model.Tutorial">
+        INSERT INTO TB_TUTORIAL_SYJ( ID
+                               , TITLE
+                               , DESCRIPTION
+                               , PUBLISHED
+                               , INSERT_TIME)
+        VALUES ( SQ_TB_TUTORIAL_SYJ.NEXTVAL
+               , #{title}
+               , #{description}
+               , 'Y'
+               , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'))
+    </insert>
+
+    <update id="updateTutorial"
+            parameterType="com.example.dongsungsi.model.Tutorial">
+        UPDATE TB_TUTORIAL_SYJ
+        SET TITLE       = #{title}
+          , DESCRIPTION = #{description}
+          , PUBLISHED   = DECODE(#{published}, 'true', 'Y', 'N')
+          , UPDATE_TIME = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+        WHERE ID = #{id}
+    </update>
+
+    <update id="deleteTutorial" parameterType="Long">
+        UPDATE TB_TUTORIAL_SYJ
+        SET DELETE_YN   = 'Y'
+          , DELETE_TIME = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+        WHERE ID = #{id}
+    </update>
+
+    <update id="deleteAll">
+        UPDATE TB_TUTORIAL_SYJ
+        SET DELETE_YN   = 'Y'
+          , DELETE_TIME = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+    </update>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+

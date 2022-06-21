@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.dongsungsi.dao.FileDBDao">
+
+    <select id="findById" parameterType="String"
+            resultType="com.example.dongsungsi.model.FileDB">
+        SELECT
+            ID
+            ,NAME
+            ,TYPE
+            ,DATA
+        FROM
+            TB_FILES_SYJ
+        WHERE ID = #{id}
+    </select>
+
+    <select id="findAll"
+            resultType="com.example.dongsungsi.model.FileDB">
+        SELECT
+            ID
+             ,NAME
+             ,TYPE
+             ,DATA
+        FROM
+            TB_FILES_SYJ
+    </select>
+
+    <insert id="save"
+            parameterType="com.example.dongsungsi.model.FileDB">
+        INSERT INTO TB_FILES_SYJ(
+             ID
+            ,NAME
+            ,TYPE
+            ,DATA
+        ) VALUES (
+            SQ_FILES_SYJ.NEXTVAL
+             ,#{name}
+             ,#{type}
+             ,#{data}
+         )
+    </insert>
+</mapper>
+
+
+
+
+
+
+
+
